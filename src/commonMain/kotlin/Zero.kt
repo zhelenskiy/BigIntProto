@@ -10,9 +10,9 @@ object Zero: BigInt {
     override fun times(other: PositiveBigInt): Zero = Zero
     override fun times(other: NegativeBigInt): Zero = Zero
 
-    override fun div(other: PositiveBigInt): Zero = Zero
+    operator fun div(other: PositiveBigInt): Zero = Zero
 
-    override fun div(other: NegativeBigInt): Zero = Zero
+    operator fun div(other: NegativeBigInt): Zero = Zero
 
     override operator fun minus(other: Zero): Zero = Zero
 
@@ -20,8 +20,8 @@ object Zero: BigInt {
 
     override fun unaryMinus(): Zero = Zero
 
-    override val absoluteValue: BigInt
-        get() = Zero
+    override val absoluteValue: UBigInt
+        get() = zero
     override val sign: BigInt.Sign
         get() = BigInt.Sign.ZERO
 

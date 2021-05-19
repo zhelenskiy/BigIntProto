@@ -29,8 +29,8 @@ value class PositiveBigInt constructor(private val magnitude: UIntArray) : BigIn
         TODO("Not yet implemented")
     }
 
-    override fun div(other: NegativeBigInt): BigInt /* todo UBigInt */ = -(this / -other)
-    override fun div(other: PositiveBigInt): BigInt /* todo UBigInt */ {
+    operator fun div(other: NegativeBigInt): BigInt /* todo NBigInt */ = -(this / -other).toBigInt()
+    operator fun div(other: PositiveBigInt): UBigInt {
         // can be 0 if this is less than other
         TODO("Not yet implemented")
     }
@@ -39,8 +39,8 @@ value class PositiveBigInt constructor(private val magnitude: UIntArray) : BigIn
 
     override fun unaryMinus(): NegativeBigInt = NegativeBigInt(this)
 
-    override val absoluteValue: BigInt
-        get() = this
+    override val absoluteValue: UBigInt
+        get() = this.toUBigInt()
     override val sign: BigInt.Sign
         get() = BigInt.Sign.PLUS
 

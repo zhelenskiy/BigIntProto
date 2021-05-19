@@ -15,13 +15,13 @@ value class NegativeBigInt(private val opposite: PositiveBigInt) : BigInt {
     override fun times(other: PositiveBigInt): NegativeBigInt = - (-this * other)
     override fun times(other: NegativeBigInt): PositiveBigInt = -this * -other
 
-    override fun div(other: PositiveBigInt): BigInt = - (-this / other)
-    override fun div(other: NegativeBigInt): BigInt  = -this / -other
+    operator fun div(other: PositiveBigInt): BigInt = - (-this / other).toBigInt()
+    operator fun div(other: NegativeBigInt): UBigInt  = (-this) / (-other)
 
     override fun unaryPlus(): NegativeBigInt = this
     override fun unaryMinus(): PositiveBigInt = opposite
 
-    override val absoluteValue: BigInt
+    override val absoluteValue: UBigInt
         get() = opposite.absoluteValue
     override val sign: BigInt.Sign
         get() = BigInt.Sign.MINUS

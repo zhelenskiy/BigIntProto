@@ -12,19 +12,17 @@ sealed interface BigInt : Comparable<BigInt> {
     operator fun times(other: PositiveBigInt): BigInt
     operator fun times(other: NegativeBigInt): BigInt
 
-    operator fun div(other: PositiveBigInt): BigInt
-    operator fun div(other: NegativeBigInt): BigInt
-
-    //todo rem
+    //todo rem and in uint
     //todo mod
 
     operator fun unaryPlus(): BigInt
     operator fun unaryMinus(): BigInt
 
-    val absoluteValue: BigInt //todo UBigInt
+    val absoluteValue: UBigInt //todo UBigInt
 
     enum class Sign {
         MINUS, ZERO, PLUS;
+
         fun toInt(): Int = when (this) {
             MINUS -> -1
             ZERO -> 0
@@ -50,7 +48,7 @@ operator fun BigInt.minus(other: BigInt): BigInt = when (other) {
 }
 
 @ExperimentalUnsignedTypes
-inline operator fun BigInt.times(other: Zero): Zero = Zero
+operator fun BigInt.times(other: Zero): Zero = Zero
 
 @ExperimentalUnsignedTypes
 operator fun BigInt.times(other: BigInt): BigInt = when (other) {
@@ -65,7 +63,15 @@ operator fun BigInt.div(other: Zero): Nothing = throw ArithmeticException("$this
 
 @ExperimentalUnsignedTypes
 operator fun BigInt.div(other: BigInt): BigInt = when (other) {
-    is NegativeBigInt -> div(other)
-    is PositiveBigInt -> div(other)
+    is NegativeBigInt -> when (this) {
+        is PositiveBigInt -> div(other)
+        is NegativeBigInt -> div(other).toBigInt()
+        is Zero -> div(other)
+    }
+    is PositiveBigInt -> when (this) {
+        is PositiveBigInt -> div(other).toBigInt()
+        is NegativeBigInt -> div(other)
+        is Zero -> div(other)
+    }
     is Zero -> div(other)
 }
