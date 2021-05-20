@@ -1,52 +1,74 @@
 import kotlin.jvm.JvmInline
 
 @ExperimentalUnsignedTypes
+private val emptyUIntArray = UIntArray(0)
+
+@ExperimentalUnsignedTypes
 @JvmInline
-value class UBigInt(private val positiveValue: PositiveBigInt?) : Comparable<UBigInt> {
+value class UBigInt(private val magnitude: UIntArray) : BigInt {
+    init {
+        require(magnitude.lastOrNull() != 0U) { "Magnitude must be without leading zeroes" }
+    }
 
-    operator fun plus(other: UBigInt): UBigInt = other.positiveValue?.let { this + it } ?: this
-    operator fun plus(other: PositiveBigInt): UBigInt = UBigInt(this.positiveValue?.plus(other) ?: other)
-    operator fun plus(other: Zero): UBigInt = this
+    constructor() : this(emptyUIntArray)
 
-    operator fun minus(other: Zero): UBigInt = this
-    operator fun minus(other: NegativeBigInt): UBigInt = this + -other
-    operator fun minus(other: UBigInt): UBigInt = (this.toBigInt() - other.toBigInt()).toUBigIntOrThrow()
+    override operator fun plus(other: BigInt): BigInt = when (other) {
+        is NBigInt -> this - -other
+        is UBigInt -> plus(other)
+    }
+    operator fun plus(other: UBigInt): UBigInt {
+        TODO("Not yet implemented")
+    }
 
-    operator fun times(other: UBigInt): UBigInt = other.positiveValue?.let { this * it } ?: zero
-    operator fun times(other: Zero): UBigInt = zero
-    operator fun times(other: PositiveBigInt): UBigInt = this.positiveValue?.times(other)?.toUBigInt() ?: zero
+    operator fun minus(other: NBigInt): UBigInt = this + -other
+    override operator fun minus(other: BigInt): BigInt {
+        return when (other) {
+            is NBigInt -> minus(other)
+            is UBigInt -> {
+                val cmp = this.compareTo(other)
+                if (cmp == 0) return zero
+                val big = if (cmp > 0) this else other
+                val small = if (cmp > 0) other else this
+                TODO("Not yet implemented")
+            }
+        }
+    }
 
-    operator fun div(other: UBigInt): UBigInt = other.positiveValue?.let { this / it } ?: div(Zero)
-    operator fun div(other: Zero): Nothing = this.toBigInt().div(other)
-    operator fun div(other: PositiveBigInt): UBigInt = this.positiveValue?.div(other) ?: zero
+    override operator fun times(other: BigInt): BigInt = when (other) {
+        is NBigInt -> -times(-other)
+        is UBigInt -> times(other)
+    }
+    operator fun times(other: UBigInt): UBigInt {
+        TODO("Not yet implemented")
+    }
 
-    fun toPositiveOrNull(): PositiveBigInt? = positiveValue
-    fun toBigInt(): BigInt = positiveValue ?: Zero
+    operator fun div(other: UBigInt): UBigInt {
+        // can be 0 if this is less than other
+        TODO("Not yet implemented")
+    }
+    override operator fun div(other: BigInt): BigInt = when (other) {
+        is NBigInt -> -div(-other)
+        is UBigInt -> div(other)
+    }
 
-    operator fun unaryPlus(): UBigInt = this
+    override fun unaryPlus(): UBigInt = this
 
-    override fun compareTo(other: UBigInt): Int = when (positiveValue) {
-        null -> if (other.positiveValue == null) 0 else -1
-        else -> if (other.positiveValue == null) 1 else positiveValue.compareTo(other.positiveValue)
+    override fun unaryMinus(): BigInt = if (this == zero) zero else NBigInt(this)
+
+    override val absoluteValue: UBigInt
+        get() = this
+    override val sign: BigInt.Sign
+        get() = if (this == zero) BigInt.Sign.ZERO else BigInt.Sign.PLUS
+
+    override fun compareTo(other: BigInt): Int = when (other) {
+        is NBigInt -> 1
+        is UBigInt -> TODO("Not yet implemented")
+    }
+
+    override fun toString(): String {
+        TODO("Not yet implemented")
     }
 }
 
 @ExperimentalUnsignedTypes
-val zero = UBigInt(null)
-
-@ExperimentalUnsignedTypes
-fun PositiveBigInt.toUBigInt(): UBigInt = UBigInt(this)
-
-@ExperimentalUnsignedTypes
-fun BigInt.toUBigIntOrNull(): UBigInt? = when (this) {
-    is PositiveBigInt -> toUBigInt()
-    is Zero -> zero
-    is NegativeBigInt -> null
-}
-
-@ExperimentalUnsignedTypes
-fun BigInt.toUBigIntOrThrow(): UBigInt = when (this) {
-    is PositiveBigInt -> toUBigInt()
-    is Zero -> zero
-    is NegativeBigInt -> throw IllegalArgumentException("$this cannot be converted to UBigInt")
-}
+val zero = UBigInt()
